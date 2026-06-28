@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 64" fill="none" role="img" aria-label="Notas Workflow — logotipo">
+  <title>Notas Workflow</title>
+
+  <!-- Pencil icon -->
+  <!-- Body -->
+  <rect x="6" y="16" width="34" height="10" rx="2" transform="rotate(-45 6 16)" fill="#007AFF"/>
+  <!-- Tip -->
+  <polygon points="8,48 14,42 20,48" fill="#1C1C1E"/>
+  <!-- Eraser -->
+  <rect x="28" y="4" width="10" height="8" rx="2" transform="rotate(-45 28 4)" fill="#FF9500"/>
+  <!-- Shine line -->
+  <line x1="10" y1="20" x2="30" y2="0" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+  <!-- Writing line (underline effect) -->
+  <path d="M 20 52 Q 40 56 60 52" stroke="#007AFF" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.5"/>
+
+  <!-- Wordmark -->
+  <text
+    x="56"
+    y="24"
+    font-family="'SF Pro Display', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+    font-size="15"
+    font-weight="700"
+    fill="#1C1C1E"
+    letter-spacing="-0.3"
+  >Notas</text>
+  <text
+    x="56"
+    y="44"
+    font-family="'SF Pro Display', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+    font-size="15"
+    font-weight="400"
+    fill="#007AFF"
+    letter-spacing="-0.3"
+  >Workflow</text>
+</svg>
