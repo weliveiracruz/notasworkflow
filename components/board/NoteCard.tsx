@@ -1,9 +1,9 @@
 'use client'
 
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useState, useEffect } from 'react'
 import { Note, DEFAULT_LANES } from '@/types'
 import { formatDate, cn } from '@/lib/utils'
-import { Tag, Clock } from 'lucide-react'
+import { Tag, Clock, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -17,6 +17,26 @@ interface NoteCardProps {
 export function NoteCard({ note, dragHandle = true }: NoteCardProps) {
   const { moveNote } = useAppStore()
   const articleRef = useRef<HTMLElement>(null)
+  const [moveMenuOpen, setMoveMenuOpen] = useState(false)
+  const moveMenuRef = useRef<HTMLDivElement>(null)
+
+  const otherLanes = DEFAULT_LANES.filter(l => l.id !== note.laneId)
+
+  useEffect(() => {
+    if (!moveMenuOpen) return
+    function handleClick(e: MouseEvent) {
+      if (moveMenuRef.current && !moveMenuRef.current.contains(e.target as Node)) {
+        setMoveMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [moveMenuOpen])
+
+  function handleMoveToLane(laneId: string) {
+    moveNote(note.id, laneId)
+    setMoveMenuOpen(false)
+  }
 
   const {
     attributes,
@@ -82,23 +102,65 @@ export function NoteCard({ note, dragHandle = true }: NoteCardProps) {
         isDragging && 'opacity-50 shadow-[var(--shadow-lg)] rotate-1',
       )}
     >
-      {/* Alça de drag */}
+      {/* Cabeçalho do card: alça de drag + botão Mover para */}
       {dragHandle && (
-        <div
-          {...attributes}
-          {...listeners}
-          className="flex items-center justify-center w-full mb-2 cursor-grab active:cursor-grabbing"
-          aria-label="Arrastar nota. Teclado: Shift+Alt+Setas para mover entre raias ou navegar na lista."
-          role="button"
-          tabIndex={-1}
-        >
-          <div className="flex gap-0.5">
-            {[0, 1, 2].map(i => (
-              <div key={i} className="flex flex-col gap-0.5">
-                <div className="w-1 h-1 rounded-full bg-[var(--color-label-quaternary)]" />
-                <div className="w-1 h-1 rounded-full bg-[var(--color-label-quaternary)]" />
+        <div className="flex items-center justify-between w-full mb-2">
+          <div
+            {...attributes}
+            {...listeners}
+            className="flex items-center justify-center cursor-grab active:cursor-grabbing p-1 -ml-1 rounded"
+            aria-label="Arrastar folha"
+            role="button"
+            tabIndex={-1}
+          >
+            <div className="flex gap-0.5">
+              {[0, 1, 2].map(i => (
+                <div key={i} className="flex flex-col gap-0.5">
+                  <div className="w-1 h-1 rounded-full bg-[var(--color-label-quaternary)]" />
+                  <div className="w-1 h-1 rounded-full bg-[var(--color-label-quaternary)]" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Botão Mover para */}
+          <div className="relative" ref={moveMenuRef}>
+            <button
+              type="button"
+              onClick={() => setMoveMenuOpen(o => !o)}
+              aria-haspopup="menu"
+              aria-expanded={moveMenuOpen}
+              className={cn(
+                'flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full transition-colors',
+                'text-[var(--color-label-secondary)] hover:text-[var(--color-label-primary)]',
+                'hover:bg-[var(--color-bg-secondary)] border border-transparent hover:border-[var(--color-separator)]',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-blue)]',
+              )}
+            >
+              Mover para
+              <ChevronRight size={10} aria-hidden="true" className={cn('transition-transform', moveMenuOpen && 'rotate-90')} />
+            </button>
+
+            {moveMenuOpen && (
+              <div
+                role="menu"
+                aria-label="Mover folha para"
+                className="absolute right-0 top-full mt-1 z-50 bg-[var(--color-bg-primary)] border border-[var(--color-separator)] rounded-[var(--radius-lg)] shadow-[var(--shadow-lg)] py-1 min-w-[160px]"
+              >
+                {otherLanes.map(lane => (
+                  <button
+                    key={lane.id}
+                    role="menuitem"
+                    type="button"
+                    onClick={() => handleMoveToLane(lane.id)}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-[var(--color-bg-secondary)] transition-colors focus-visible:outline-none focus-visible:bg-[var(--color-bg-secondary)]"
+                  >
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: lane.color }} aria-hidden="true" />
+                    <span className="text-[var(--color-label-primary)]">{lane.name}</span>
+                  </button>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         </div>
       )}

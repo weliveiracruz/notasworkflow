@@ -24,8 +24,8 @@ export function Sidebar() {
         className="flex items-center gap-2 px-3 py-3 w-full text-left hover:bg-[var(--color-bg-secondary)] transition-colors"
         onClick={() => setExpanded(e => !e)}
         aria-expanded={expanded}
-        aria-controls="recent-notes-list"
-        aria-label={expanded ? 'Recolher notas recentes' : 'Expandir notas recentes'}
+        aria-controls="recent-sheets-list"
+        aria-label={expanded ? 'Recolher folhas recentes' : 'Expandir folhas recentes'}
       >
         <ChevronRight
           size={13}
@@ -34,15 +34,15 @@ export function Sidebar() {
         />
         <Clock size={13} className="text-[var(--color-label-secondary)] shrink-0" aria-hidden="true" />
         <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-label-secondary)]">
-          Notas recentes
+          Folhas recentes
         </span>
       </button>
 
       {expanded && (
-        <nav id="recent-notes-list" aria-label="Notas recentes">
+        <nav id="recent-sheets-list" aria-label="Folhas recentes">
           {recentNotes.length === 0 ? (
             <p className="px-4 py-3 text-xs text-[var(--color-label-tertiary)]">
-              Nenhuma nota ainda.
+              Nenhuma folha ainda.
             </p>
           ) : (
             <ul role="list">

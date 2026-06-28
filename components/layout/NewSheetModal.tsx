@@ -34,6 +34,7 @@ export function NewSheetModal() {
       tags: [],
       laneId,
       notebookId: notebookId || null,
+      folderId: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     })

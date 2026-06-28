@@ -1,13 +1,15 @@
 import { create } from 'zustand'
-import { Notebook, Note } from '@/types'
+import { Folder, Notebook, Note } from '@/types'
 import { generateId } from './utils'
 
 const NOTEBOOK_COLORS = ['#007AFF', '#34C759', '#FF9500', '#FF2D55', '#AF52DE', '#5856D6']
+const FOLDER_COLORS = ['#FF9500', '#5856D6', '#34C759', '#FF2D55', '#007AFF', '#AF52DE']
 
-// 'all' = todas as folhas, 'loose' = folhas soltas, string = id do caderno
+// 'all' = todas as folhas, 'loose' = folhas soltas, string = id do caderno ou pasta
 export type ActiveFilter = 'all' | 'loose' | string
 
 interface AppState {
+  folders: Folder[]
   notebooks: Notebook[]
   notes: Record<string, Note>
   activeFilter: ActiveFilter
@@ -18,6 +20,7 @@ interface AppState {
   openNewSheet: (laneId?: string) => void
   closeNewSheet: () => void
 
+  setFolders: (folders: Folder[]) => void
   setNotebooks: (notebooks: Notebook[]) => void
   setNotes: (notes: Note[]) => void
 
@@ -27,7 +30,11 @@ interface AppState {
   moveNote: (noteId: string, toLaneId: string) => void
   moveNoteToNotebook: (noteId: string, notebookId: string | null) => void
 
-  addNotebook: (name: string) => void
+  addFolder: (name: string) => void
+  updateFolder: (id: string, patch: Partial<Folder>) => void
+  deleteFolder: (id: string) => void
+
+  addNotebook: (name: string, folderId?: string | null) => void
   updateNotebook: (id: string, patch: Partial<Notebook>) => void
   deleteNotebook: (id: string) => void
 
@@ -36,6 +43,7 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>((set) => ({
+  folders: [],
   notebooks: [],
   notes: {},
   activeFilter: 'all',
@@ -46,6 +54,7 @@ export const useAppStore = create<AppState>((set) => ({
   openNewSheet: (laneId = 'todo') => set({ newSheetOpen: true, newSheetLaneId: laneId }),
   closeNewSheet: () => set({ newSheetOpen: false }),
 
+  setFolders: (folders) => set({ folders }),
   setNotebooks: (notebooks) => set({ notebooks }),
   setNotes: (notes) => set({ notes: Object.fromEntries(notes.map(n => [n.id, n])) }),
 
@@ -78,7 +87,34 @@ export const useAppStore = create<AppState>((set) => ({
       },
     })),
 
-  addNotebook: (name) =>
+  addFolder: (name) =>
+    set(s => ({
+      folders: [
+        ...s.folders,
+        {
+          id: generateId(),
+          name,
+          color: FOLDER_COLORS[s.folders.length % FOLDER_COLORS.length],
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    })),
+  updateFolder: (id, patch) =>
+    set(s => ({
+      folders: s.folders.map(f => (f.id === id ? { ...f, ...patch } : f)),
+    })),
+  deleteFolder: (id) =>
+    set(s => ({
+      folders: s.folders.filter(f => f.id !== id),
+      notebooks: s.notebooks.map(nb => nb.folderId === id ? { ...nb, folderId: null } : nb),
+      notes: Object.fromEntries(
+        Object.entries(s.notes).map(([k, n]) =>
+          n.folderId === id ? [k, { ...n, folderId: null }] : [k, n]
+        )
+      ),
+    })),
+
+  addNotebook: (name, folderId = null) =>
     set(s => ({
       notebooks: [
         ...s.notebooks,
@@ -86,6 +122,7 @@ export const useAppStore = create<AppState>((set) => ({
           id: generateId(),
           name,
           color: NOTEBOOK_COLORS[s.notebooks.length % NOTEBOOK_COLORS.length],
+          folderId,
           createdAt: new Date().toISOString(),
         },
       ],

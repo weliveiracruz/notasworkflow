@@ -13,6 +13,7 @@ import {
   Plus,
   BookOpen,
   FileText,
+  Folder,
   ChevronDown,
   Layers,
   Settings,
@@ -21,12 +22,12 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-type OpenMenu = 'novo' | 'cadernos' | 'folhas' | 'perfil' | null
+type OpenMenu = 'novo' | 'folhas' | 'cadernos' | 'pastas' | 'perfil' | null
 
 export function Header() {
   const router = useRouter()
   const { data: session } = useSession()
-  const { notebooks, addNotebook, setActiveFilter, openNewSheet } = useAppStore()
+  const { folders, notebooks, addNotebook, addFolder, setActiveFilter, openNewSheet } = useAppStore()
 
   const [openMenu, setOpenMenu] = useState<OpenMenu>(null)
   const navRef = useRef<HTMLElement>(null)
@@ -54,6 +55,12 @@ export function Header() {
   function handleNewFolha() {
     setOpenMenu(null)
     openNewSheet()
+  }
+
+  function handleNewFolder() {
+    setOpenMenu(null)
+    const name = prompt('Nome da pasta:')
+    if (name?.trim()) addFolder(name.trim())
   }
 
   function navigate(filter: string) {
@@ -113,6 +120,20 @@ export function Header() {
               <div role="menu" aria-label="Criar novo" className={cn(dropdownClass, 'w-48')}>
                 <button
                   role="menuitem"
+                  onClick={handleNewFolha}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-left hover:bg-[var(--color-bg-secondary)] transition-colors"
+                >
+                  <span className="w-7 h-7 flex items-center justify-center rounded-[var(--radius-md)] bg-[#34C759]/10 text-[#34C759] shrink-0">
+                    <FileText size={14} aria-hidden="true" />
+                  </span>
+                  <div>
+                    <p className="font-medium text-[var(--color-label-primary)]">Nova folha</p>
+                    <p className="text-[10px] text-[var(--color-label-tertiary)]">Anotação livre</p>
+                  </div>
+                </button>
+
+                <button
+                  role="menuitem"
                   onClick={handleNewNotebook}
                   className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-left hover:bg-[var(--color-bg-secondary)] transition-colors"
                 >
@@ -127,16 +148,51 @@ export function Header() {
 
                 <button
                   role="menuitem"
-                  onClick={handleNewFolha}
+                  onClick={handleNewFolder}
                   className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-left hover:bg-[var(--color-bg-secondary)] transition-colors"
                 >
-                  <span className="w-7 h-7 flex items-center justify-center rounded-[var(--radius-md)] bg-[#34C759]/10 text-[#34C759] shrink-0">
-                    <FileText size={14} aria-hidden="true" />
+                  <span className="w-7 h-7 flex items-center justify-center rounded-[var(--radius-md)] bg-[#FF9500]/10 text-[#FF9500] shrink-0">
+                    <Folder size={14} aria-hidden="true" />
                   </span>
                   <div>
-                    <p className="font-medium text-[var(--color-label-primary)]">Nova folha</p>
-                    <p className="text-[10px] text-[var(--color-label-tertiary)]">Anotação livre</p>
+                    <p className="font-medium text-[var(--color-label-primary)]">Nova pasta</p>
+                    <p className="text-[10px] text-[var(--color-label-tertiary)]">Agrupar cadernos e folhas</p>
                   </div>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Folhas */}
+          <div className="relative">
+            <button
+              onClick={() => toggle('folhas')}
+              aria-expanded={openMenu === 'folhas'}
+              aria-haspopup="menu"
+              className={menuBtnClass('folhas')}
+            >
+              <FileText size={14} aria-hidden="true" />
+              <span className="hidden sm:inline">Folhas</span>
+              <ChevronDown size={12} aria-hidden="true" className={cn('transition-transform', openMenu === 'folhas' && 'rotate-180')} />
+            </button>
+
+            {openMenu === 'folhas' && (
+              <div role="menu" aria-label="Folhas" className={cn(dropdownClass, 'w-48')}>
+                <button
+                  role="menuitem"
+                  onClick={() => navigate('all')}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-[var(--color-bg-secondary)] transition-colors"
+                >
+                  <Layers size={14} className="text-[var(--color-label-tertiary)] shrink-0" aria-hidden="true" />
+                  <span className="text-[var(--color-label-primary)]">Todas as folhas</span>
+                </button>
+                <button
+                  role="menuitem"
+                  onClick={() => navigate('loose')}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-[var(--color-bg-secondary)] transition-colors"
+                >
+                  <FileText size={14} className="text-[var(--color-label-tertiary)] shrink-0" aria-hidden="true" />
+                  <span className="text-[var(--color-label-primary)]">Folhas soltas</span>
                 </button>
               </div>
             )}
@@ -189,37 +245,49 @@ export function Header() {
             )}
           </div>
 
-          {/* Folhas */}
+          {/* Pastas */}
           <div className="relative">
             <button
-              onClick={() => toggle('folhas')}
-              aria-expanded={openMenu === 'folhas'}
+              onClick={() => toggle('pastas')}
+              aria-expanded={openMenu === 'pastas'}
               aria-haspopup="menu"
-              className={menuBtnClass('folhas')}
+              className={menuBtnClass('pastas')}
             >
-              <FileText size={14} aria-hidden="true" />
-              <span className="hidden sm:inline">Folhas</span>
-              <ChevronDown size={12} aria-hidden="true" className={cn('transition-transform', openMenu === 'folhas' && 'rotate-180')} />
+              <Folder size={14} aria-hidden="true" />
+              <span className="hidden sm:inline">Pastas</span>
+              <ChevronDown size={12} aria-hidden="true" className={cn('transition-transform', openMenu === 'pastas' && 'rotate-180')} />
             </button>
 
-            {openMenu === 'folhas' && (
-              <div role="menu" aria-label="Folhas" className={cn(dropdownClass, 'w-48')}>
+            {openMenu === 'pastas' && (
+              <div role="menu" aria-label="Pastas" className={cn(dropdownClass, 'w-52')}>
                 <button
                   role="menuitem"
                   onClick={() => navigate('all')}
                   className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-[var(--color-bg-secondary)] transition-colors"
                 >
                   <Layers size={14} className="text-[var(--color-label-tertiary)] shrink-0" aria-hidden="true" />
-                  <span className="text-[var(--color-label-primary)]">Todas as folhas</span>
+                  <span className="text-[var(--color-label-primary)]">Todas as pastas</span>
                 </button>
-                <button
-                  role="menuitem"
-                  onClick={() => navigate('loose')}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-[var(--color-bg-secondary)] transition-colors"
-                >
-                  <FileText size={14} className="text-[var(--color-label-tertiary)] shrink-0" aria-hidden="true" />
-                  <span className="text-[var(--color-label-primary)]">Folhas soltas</span>
-                </button>
+
+                {folders.length > 0 && (
+                  <div className="mx-3 my-1 border-t border-[var(--color-separator)]" role="separator" />
+                )}
+
+                {folders.map(f => (
+                  <button
+                    key={f.id}
+                    role="menuitem"
+                    onClick={() => navigate(f.id)}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left hover:bg-[var(--color-bg-secondary)] transition-colors"
+                  >
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: f.color }} aria-hidden="true" />
+                    <span className="flex-1 truncate text-[var(--color-label-primary)]">{f.name}</span>
+                  </button>
+                ))}
+
+                {folders.length === 0 && (
+                  <p className="px-3 py-2 text-xs text-[var(--color-label-tertiary)]">Nenhuma pasta ainda.</p>
+                )}
               </div>
             )}
           </div>

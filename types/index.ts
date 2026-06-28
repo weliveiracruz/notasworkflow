@@ -6,10 +6,18 @@ export interface User {
   provider: 'google' | 'microsoft'
 }
 
+export interface Folder {
+  id: string
+  name: string
+  color: string
+  createdAt: string
+}
+
 export interface Notebook {
   id: string
   name: string
   color: string
+  folderId: string | null
   createdAt: string
 }
 
@@ -20,6 +28,7 @@ export interface Note {
   tags: string[]
   laneId: string
   notebookId: string | null
+  folderId: string | null
   createdAt: string
   updatedAt: string
 }
