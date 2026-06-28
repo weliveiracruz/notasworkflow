@@ -10,7 +10,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Notas Workflow — Organize suas ideias em raias',
+  title: 'Notas Workflow — Organize e salve suas ideias',
   description: 'Ferramenta de anotações com organização em raias e busca inteligente com IA.',
   icons: { icon: '/logo.svg' },
 }
